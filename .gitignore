@@ -40,4 +40,10 @@ schema/
 
 ## virtual env
 venv/
-v_py38/
+v_py36/
+
+## file DB
+db.sqlite3
+
+## env 
+env/etc
