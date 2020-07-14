@@ -1,51 +1,39 @@
-# Django-sercvice-starter 
-- EB(Elastic beanstalk)
-- S3
-- Django(Django REST freamework, Abstract User, pytest)
-- PostgreSQL
-- JWT Authentication
+# 제 3회 엔젤톤 해커톤 - 오후 7시 팀
 
-# Configurations
-### Common
-awsebcli
-boto3
-celery
-Django
-django_celery_beat
-django-cors-headers
-django-extensions
-django-storages
-django-timezone-field
-djangorestframework
-djangorestframework-jwt
-Pillow
-PyJWT
-PyYAML
-redis
-psycopg2
+7Hacks - 누구나 쉽게 해커톤을 즐길 수 있는 플랫폼! 
 
-### Development
-drf-yasg 
-pytest-django
-django-debug-toolbar
+***
 
-### Production
-sentry-sdk
+> ## 개발 환경
+- python 3.6.8
+- Redis server 5.0.5     
 
-## for dev
-<code>pip install -r env/development.txt</code>
-### set 
-- path : env/etc/email.txt
 
-- path : env/etc/db.txt
+> ## 가상환경 생성
+    $ python3.6 -m venv venv  
 
-- path : env/etc/secret.txt
+> ## 가상환경 활성화
+ ### Linux & MAC
+    $ source venv/bin/activate  
+ ### Windows
+    $ source venv\Scripts\activate.bat  
 
-###  add .gitingore path in env/etc
+> ## packages 설치
+    (venv) $ pip install -r requirements.txt  
 
-## for prod
-To_be_continue
 
-##TODO  
-- prod url set
-- how to deploy 
+> ## 데이터 베이스 migration 
+    (venv) $ python manage.py migrate  
+
+
+> ## Django(WAS) 실행  
+    (venv) $ python manage.py runserver  
+
+
+> ## Celery 실행
+    (venv) $ celery worker -A config -P --loglevel=INFO  
+
+
+> ## Celery beat 실행 
+    (venv) $ celery beat -A config  --loglevel=INFO  
+
