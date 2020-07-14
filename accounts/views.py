@@ -11,6 +11,13 @@ from .models import User
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def sign_in(request):
+  """
+  로그인 예시
+  {
+    "email":"test@test.com",
+    "password": "admin12345"
+  }
+  """
   if request.method == 'POST':
     serializer = UserLoginSerializer(data=request.data)
     if not serializer.is_valid(raise_exception=True):
@@ -28,6 +35,13 @@ def sign_in(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def sign_up(request):  
+  """
+  회원가입 예시
+  {
+    "email":"test@test.com",
+    "password": "admin12345"
+  }
+  """
   if request.method == 'POST':
     serializer = UserCreateSerializer(data=request.data)
     if not serializer.is_valid(raise_exception=True):
