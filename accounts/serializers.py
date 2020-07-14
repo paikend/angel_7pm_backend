@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth import authenticate
 from rest_framework_jwt.settings import api_settings
-from .models import User, Profile
+from .models import User
+# , Profile
 
 User = get_user_model()
 
@@ -13,20 +14,15 @@ JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
 class UserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
 
     def create(self, validated_data):
         user = User.objects.create(
             email=validated_data['email'],
-            username=validated_data['username'],
             type='i',
         )
-        profile = Profile.objects.create(user=user)  # 기본값으로 프로필 일단 생성 --
         user.set_password(validated_data['password'])
-
         user.save()
-        profile.save()
         return user
 
 

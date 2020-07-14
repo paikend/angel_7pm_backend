@@ -71,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-
+    portfolio_link = models.TextField(blank=True, null=True)
     objects = UserManager()
 
     EMAIL_FIELD = 'email'
