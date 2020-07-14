@@ -22,7 +22,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),
+    path('hacks/', include('hacks.urls')),    
 ]
 
 
