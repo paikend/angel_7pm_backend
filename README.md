@@ -5,7 +5,7 @@
 ***
 
 > ## 개발 환경
-- python 3.6.8
+- python 3.6.8 (https://www.python.org/downloads/release/python-368/)
 - Redis server 5.0.5     
 
 
