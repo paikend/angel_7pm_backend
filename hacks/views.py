@@ -27,9 +27,8 @@ class HacksViewSet(ModelViewSet):
         if is_mine=="true":
             user = self.request.user
             if not isinstance(user, AnonymousUser):
-                applied = Application.objects.filter(user=user)
-                for a in applied: 
-                    qs = qs.filter(id=a.hacks.id)
+                applied = Application.objects.filter(user=user).first()
+                qs = qs.filter(id=applied.hacks.id)
         status = 'i'
         qs = qs.filter(status = status)
         return qs
@@ -39,6 +38,13 @@ class HacksViewSet(ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(host=self.request.user)
     def create(self, request, *args, **kwargs):
+        user = self.request.user
+        if not isinstance(user, AnonymousUser):
+            applied = Application.objects.filter(user=user).first()
+            hacks = Hacks.objects.filter(id=applied.hacks.id)
+            if hacks:
+                if hacks.status == 'i':
+                    return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -109,7 +115,7 @@ class ApplicationViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 application_list = ApplicationViewSet.as_view({
     'get': 'list',
-    # 'post': 'create',
+    'post': 'create',
 })
 application_detail = ApplicationViewSet.as_view({
     'get': 'retrieve',

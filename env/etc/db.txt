@@ -1,0 +1,5 @@
+hacks_db
+paikend
+admin12345
+db-7hacks.c7vjzqpfc5yd.ap-northeast-2.rds.amazonaws.com
+5432
