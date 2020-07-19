@@ -9,6 +9,10 @@ from .models import Hacks, Team, Application
 from .serializers import HacksSerializer, TeamSerializer, ApplicationSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permission import IsAuthenticatedOnlyNotGet
+import json
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 class HacksViewSet(ModelViewSet):
     """
     quertString 
@@ -28,7 +32,10 @@ class HacksViewSet(ModelViewSet):
             user = self.request.user
             if not isinstance(user, AnonymousUser):
                 applied = Application.objects.filter(user=user).first()
-                qs = qs.filter(id=applied.hacks.id)
+                if applied:
+                    qs = qs.filter(id=applied.hacks.id)
+                else:
+                    qs = qs.filter(id=None)
         status = 'i'
         qs = qs.filter(status = status)
         return qs
@@ -144,32 +151,40 @@ def team_build(request, pk):
         ㅣ_role : 리더 역할
         teams:[
             {
-                name : 팀원이름,
-                email : 리더이메일,
+                email : 팀원이메일,
+                role : 팀원역할
             },
             {
-                name : 팀원이름,
-                email : 리더이메일,
+                email : 팀원이메일,
+                role : 팀원역할
             },  
-            {
-                name : 팀원이름,
-                email : 리더이메일,
+            {                email : 팀원이메일,
+                role : 팀원역할
             }, 
         ]
     }
     """
     if request.method == 'POST':
-            team_name = request.POST.get('t_name', None)
-            leader_email = request.POST.get('l_email', None)
-            leader_role = request.POST.get('l_role', None)
-            teams = request.POST.get('teams', None)
-            teams = json.loads(teams)
+        try:
+            team_name = request.data['t_name']
+            leader_email = request.data['l_email']
+            leader_role = request.data['ㅣ_role']
+            teams = request.data['teams']
             hacks = Hacks.objects.get(id=pk)
-            team = Team.objects.create(hacks=hacks, name = team_name)
-            leader = Application.save(hacks= hacks, is_leader = True, role = leader_role, user = User.objects.get(email=leader_email))
+            team = Team.objects.create(hacks = hacks, name = team_name)
+            leader = User.objects.get(email=leader_email)
+            if not leader:
+                return Response({"message":"leader email is not vaild!"}, status=status.HTTP_400_BAD_REQUEST)
+            l_apply = Application.objects.get(user=leader.id)
+            print(l_apply.id)
+            l_apply.save(hacks= hacks, is_leader = True, role = leader_role, mission_level="t")
             for t in teams:
-                leader = Application.save(hacks= hacks, role = t.role, user = User.objects.get(email=t.mail))
-            return Response({"message":"submit!"}, status=status.HTTP_201_CREATED)
+                member = User.objects.get(email=t["email"])
+                member.save(user = member,hacks= hacks, role = t["role"], mission_level="t")
+        except Exception as e:
+            return Response({"message":"member email is not vaild!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message":"submit!"}, status=status.HTTP_201_CREATED)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def hacks_check(request, pk):

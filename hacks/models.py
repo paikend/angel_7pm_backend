@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from config.storage_backends import PrivateMediaStorage
 from .utils import move_two_days
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 class Hacks(models.Model):
@@ -193,16 +193,12 @@ class Application(models.Model):
     default=False)
   # 중도 포기등을 단계로 나눔
   mission_level = models.CharField(
-        blank=True, null=True,default="h",
+        blank=True, null=True,default="-",
       help_text="[미션 완료 여부] \
-        h:해커톤 참여 신청,\
-        s:슬랙 참여\
-        d:개발링크 제출\
-        v:데모영상 제출 \
-        p:기획안 링크 제출 \
-        t:팀빌딩 완료 \
-        i:아이디어 완료",
-        max_length = 7, 
+        t:팀 생성 완료\
+        i:아이디어 완료\
+        s:제출 완료",
+        max_length = 1, 
         )
   role = models.CharField(
     blank=True, null=True,

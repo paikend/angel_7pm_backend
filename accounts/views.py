@@ -75,11 +75,18 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-
+    def get_queryset(self):
+      qs = super().get_queryset()
+      qs = qs.filter(id = self.request.user.id)
+      return qs
     def perform_update(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user.id)
+user_list = UserViewSet.as_view({
+    'get': 'list',
+    # 'post': 'create',
+})
 user_detail = UserViewSet.as_view({
-    'get': 'retrieve',
+    # 'get': 'retrieve',
     'patch': 'partial_update',
     # 'delete': 'destroy',
 })
