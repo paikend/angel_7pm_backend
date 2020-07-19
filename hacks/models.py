@@ -130,6 +130,7 @@ class Hacks(models.Model):
     if user:
       email = user.email
     return email
+
   class Meta:
     ordering = ('created_at',)
   def __str__(self):

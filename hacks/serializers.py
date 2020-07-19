@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Hacks, Application, Team
+from rest_framework.fields import CurrentUserDefault
 
 
 class HacksSerializer(serializers.ModelSerializer):
@@ -14,12 +15,10 @@ class HacksSerializer(serializers.ModelSerializer):
         model = Hacks
         fields = (
           'id', 'title', 'started_at', 'ended_at' ,
-          'fee', 'intro', 'subject', 'img', 'status',
-          'judge_line', 'judge_day', 'max_personnel', 
-          'team_personnel', 'awards_count', 'awards',
-          'created_at', 'updated_at', 'chat_url',
+          'fee', 'intro', 'subject', 'status',
+          'max_personnel', 'team_personnel', 'created_at', 
+          'updated_at', 'chat_url', 'role', 
           'current_personnel', 'total_fee', 
-          'role', 
           'belong', 'email', 'host_name',
           # 'id','title', 'started_at', 'ended_at' 
           )

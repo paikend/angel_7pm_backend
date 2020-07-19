@@ -163,8 +163,16 @@ def team_build(request, pk):
             for t in teams:
                 leader = Application.save(hacks= hacks, role = t.role, user = User.objects.get(email=t.mail))
             return Response({"message":"submit!"}, status=status.HTTP_201_CREATED)
-
-@api_view(['POST'])
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def hacks_check(request, pk):
+    """
+    해커톤 신청을 했는지 확인하는 로직
+    """
+    applied= Application.objects.filter(user=request.user).filter(id=pk)
+    if applied:
+        return Response({"is_applied":True}, status=status.HTTP_200_OK)
+    return Response({"is_applied":False}, status=status.HTTP_200_OK)
 @permission_classes([IsAuthenticated])
 def ideation(request, pk):
     """
