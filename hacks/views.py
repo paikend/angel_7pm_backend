@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -22,13 +22,14 @@ class HacksViewSet(ModelViewSet):
     # pagination_class = CustomSetPagination
 
     def get_queryset(self):
-
         qs = super().get_queryset()
         is_mine = self.request.query_params.get('is_mine', None)
         if is_mine=="true":
-            applied = Application.objects.filter(user=self.request.user)
-            for a in applied: 
-                qs = qs.filter(id=a.hacks)
+            user = self.request.user
+            if not isinstance(user, AnonymousUser):
+                applied = Application.objects.filter(user=user)
+                for a in applied: 
+                    qs = qs.filter(id=a.hacks.id)
         status = 'i'
         qs = qs.filter(status = status)
         return qs
@@ -77,7 +78,7 @@ class TeamViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 team_list = TeamViewSet.as_view({
     'get': 'list',
-    'post': 'create',
+    # 'post': 'create',
 })
 team_detail = TeamViewSet.as_view({
     'get': 'retrieve',
@@ -108,7 +109,7 @@ class ApplicationViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 application_list = ApplicationViewSet.as_view({
     'get': 'list',
-    'post': 'create',
+    # 'post': 'create',
 })
 application_detail = ApplicationViewSet.as_view({
     'get': 'retrieve',
