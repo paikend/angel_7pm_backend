@@ -15,7 +15,7 @@ class HacksSerializer(serializers.ModelSerializer):
         model = Hacks
         fields = (
           'id', 'title', 'started_at', 'ended_at' ,
-          'fee', 'intro', 'subject', 'status',
+          'fee', 'intro', 'subject', 'status', 'rule',
           'max_personnel', 'team_personnel', 'created_at', 
           'updated_at', 'chat_url', 'role', 
           'current_personnel', 'total_fee', 

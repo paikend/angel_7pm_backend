@@ -170,7 +170,7 @@ def hacks_check(request, pk):
     """
     해커톤 신청을 했는지 확인하는 로직
     """
-    applied= Application.objects.filter(user=request.user).filter(id=pk)
+    applied= Application.objects.filter(user=request.user).filter(hacks=pk)
     if applied:
         return Response({"is_applied":True}, status=status.HTTP_200_OK)
     return Response({"is_applied":False}, status=status.HTTP_200_OK)
