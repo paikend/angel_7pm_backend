@@ -64,7 +64,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-        'id', 'email', 'name', 'role', 'credits', 'type', 'portfolio_link'
+        'id', 'email', 'name', 'role', 
+        'credits', 'type', 'portfolio_link', 
+        'belong'
         )
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)

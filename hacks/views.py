@@ -36,8 +36,10 @@ class HacksViewSet(ModelViewSet):
                     qs = qs.filter(id=applied.hacks.id)
                 else:
                     qs = qs.filter(id=None)
-        status = 'i'
-        qs = qs.filter(status = status)
+        status = self.request.query_params.get('status ', None)
+        if status is not 'my':
+            status = 'i'
+            qs = qs.filter(status = status)
         return qs
     def perform_create(self, serializer):
         serializer.save(host=self.request.user)
@@ -110,8 +112,16 @@ class ApplicationViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
     def create(self, request, *args, **kwargs):
         user = self.request.user
+        h = request.data["hacks"]
+        hacks = Hacks.objects.get(id=h)
+        # simple_mail.delay(
+        #     '[끝장개발대회] 참가 확정 안내',
+        #     "안녕하세요. 참가자님!\n끝장개발대회에 참여해주셔서 감사합니다.\n\n금요일 오후 7시 전까지 아래 슬랙에 입장해주세요!\
+        #     \n금요일에 만나요👋\n슬랙 참가 URL :"+ str(hacks.chat_url) +"\n",
+        #     '',
+        #     [user.email],
+        #     fail_silently=False)
         if not isinstance(user, AnonymousUser):
-            h = request.data["hacks"]
             applied = Application.objects.filter(user=user).filter(hacks=h)
             if applied:
                 return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
@@ -121,18 +131,7 @@ class ApplicationViewSet(ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         # if serializer.data['is_paid']:
-        # hacks = Hacks.objects.get(id=h)
-        # simple_mail.delay(
-        #     '[끝장개발대회] 참가 확정 안내',
-        #     '안녕하세요. 참가자님!\
-        #     끝장개발대회에 참여해주셔서 감사합니다.\n\n\
-        #     금요일 오후 7시 전까지 아래 슬랙에 입장해주세요!\n\
-        #     금요일에 만나요👋\n\
-        #     슬랙 참가 URL :  + hacks.chat_url +"\n"' ,
-        #     '',
-        #     [user.email],
-        #     fail_silently=False,
-        # )
+
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 application_list = ApplicationViewSet.as_view({
     'get': 'list',
