@@ -38,13 +38,6 @@ class HacksViewSet(ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(host=self.request.user)
     def create(self, request, *args, **kwargs):
-        user = self.request.user
-        if not isinstance(user, AnonymousUser):
-            applied = Application.objects.filter(user=user).first()
-            hacks = Hacks.objects.filter(id=applied.hacks.id)
-            if hacks:
-                if hacks.status == 'i':
-                    return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -108,6 +101,13 @@ class ApplicationViewSet(ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(user=self.request.user)
     def create(self, request, *args, **kwargs):
+        user = self.request.user
+        if not isinstance(user, AnonymousUser):
+            applied = Application.objects.filter(user=user).first()
+            hacks = Hacks.objects.filter(id=applied.hacks.id)
+            if hacks:
+                if hacks.status == 'i':
+                    return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
