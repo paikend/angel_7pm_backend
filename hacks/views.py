@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from .permission import IsAuthenticatedOnlyNotGet
 import json
 from django.contrib.auth import get_user_model
-
+from config.tasks import simple_mail
 User = get_user_model()
 class HacksViewSet(ModelViewSet):
     """
@@ -102,6 +102,7 @@ class ApplicationViewSet(ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        qs = qs.filter(user=self.request.user)
         return qs
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -109,16 +110,30 @@ class ApplicationViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
     def create(self, request, *args, **kwargs):
         user = self.request.user
+        print(user.email)
         if not isinstance(user, AnonymousUser):
-            applied = Application.objects.filter(user=user).first()
-            hacks = Hacks.objects.filter(id=applied.hacks.id)
-            if hacks:
-                if hacks.status == 'i':
-                    return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
+            h = request.data["hacks"]
+            applied = Application.objects.filter(user=user).filter(hacks=h)
+            if applied:
+                return Response({"message":"duplicated apply"}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        if serializer.data['is_paid']:
+            hacks = Hacks.objects.get(id=h)
+            simple_mail.delay(
+                '[끝장개발대회] 참가 확정 안내',
+                '안녕하세요. 참가자님!\
+                끝장개발대회에 참여해주셔서 감사합니다.\n\n\
+                금요일 오후 7시 전까지 아래 슬랙에 입장해주세요!\n\
+                금요일에 만나요👋\n\
+                슬랙 참가 URL :  + hacks.chat_url +"\n"' ,
+                '',
+                [user.email],
+                fail_silently=False,
+            )
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 application_list = ApplicationViewSet.as_view({
     'get': 'list',
@@ -206,36 +221,44 @@ def ideation(request, pk):
     }
     """
     if request.method == 'POST':
-        hacks = Hacks.objects.get(id=pk)
-        team_name =request.POST.get('team_name', None)
-        name = request.POST.get('i_name', None)
-        detail = request.POST.get('i_detail', None)
-        t_id = Team.objects.filter(name=team_name).filter(hacks=id).first()
-        if t_id:
+        try:
+            hacks = Hacks.objects.get(id=pk)
+            team_name = request.data['team_name']
+            name = request.data['i_name']
+            detail = request.data['i_detail']
+            t_id = Team.objects.filter(name=team_name).filter(hacks=id).get()
             Teams.objects.save(id = t_id, service_name=name, service_detail = detail)
+            teams = Application.objects.filter(team=t_id.id)
+            for team in teams:
+                team.save(mission_level="i")
+
             return Response({"message":"submit!"}, status=status.HTTP_201_CREATED)
-        return Response({"message":"submit fail"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e :
+            return Response({"message":"submit fail"}, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit(request, pk):
     """
     최종 제출 API
     {
-        "team_name": "팀명(팀작성명과 같아야함), 다르면 400 에러
-        ",
+        "team_name": "팀명(팀작성명과 같아야함), 다르면 400 에러= ",
         "i_name": "서비스명",
         "i_detail": "서비스 설명"
     }
     """
     if request.method == 'POST':
-        hacks = Hacks.objects.get(id=pk)
-        team_name = request.POST.get('team_name', None)
-        git = request.POST.get('github', None)
-        demo = request.POST.get('demo', None)
-        pitch = request.POST.get('pitch', None)
-        present = request.POST.get('≈', None)
-        t_id = Team.objects.filter(name=team_name).filter(hacks=id).first()
-        if t_id:
-            Teams.objects.save(id = t_id ,github_url = git, demo_url=demo, pitch_url = pitch, present_url = present)
+        try:
+            hacks = Hacks.objects.get(id=pk)
+            team_name = request.data['team_name']
+            git = request.data['github']
+            demo = request.data['demo']
+            pitch = request.data['pitch']
+            present = request.data['present']
+            team = Team.objects.filter(name=team_name).filter(hacks=id).get()
+            team.objects.save( github_url = git, demo_url=demo, pitch_url = pitch, present_url = present)
+            members = Application.objects.filter(team=team.id)
+            for member in members:
+                members.save(mission_level="s")
             return Response({"message":"submit!"}, status=status.HTTP_201_CREATED)
-        return Response({"message":"submit fail"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message":"submit fail"}, status=status.HTTP_400_BAD_REQUEST)
