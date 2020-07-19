@@ -133,7 +133,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from hacks.models import Application, Team, Hacks
 
-# @api_view(['POST'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def team_build(request, pk):
     """
