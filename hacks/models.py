@@ -31,13 +31,12 @@ class Hacks(models.Model):
     blank=True, null=True, default = 0)
   status = models.CharField(
     max_length = 1, 
+    default = 'p',
     help_text="해커톤 상태 \
-            ('w', '작성(write)'),\
             ('p', '예정(plan)'),\
             ('i', '진행(ing)'),\
             ('c', '완료(complete)')",
     choices=(
-            ('w', '작성(write)'),
             ('p', '예정(plan)'),
             ('i', '진행(ing)'),
             ('c', '완료(complete)'),
