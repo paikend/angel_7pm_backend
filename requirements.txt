@@ -20,7 +20,7 @@ cryptography==2.9.2
 Django==3.0.6
 django-celery-beat==2.0.0
 django-cors-headers==3.2.1
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-extensions==2.2.9
 django-storages==1.9.1
 django-timezone-field==4.0
