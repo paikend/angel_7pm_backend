@@ -41,7 +41,7 @@ jsonschema==3.2.0
 kombu==4.6.8
 MarkupSafe==1.1.1
 packaging==20.3
-paramiko==2.7.1
+paramiko==2.10.1
 pathspec==0.5.9
 Pillow==7.1.2
 psycopg2-binary==2.8.5
